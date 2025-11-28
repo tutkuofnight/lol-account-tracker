@@ -10,6 +10,7 @@ export type AccountInfo = {
 };
 
 export type AccountLeague = {
+  leagueId: string;
   queueType: string;
   tier: string;
   rank: string;
@@ -32,8 +33,13 @@ export type AccountActiveGame = {
 
 export type Account = {
   profile: AccountInfo & AccountProfile;
-  leagues: AccountLeague;
+  leagues: AccountLeague[];
   activeGame: AccountActiveGame | null;
   region: string;
   profileIcon?: string;
 };
+
+export const Leagues = {
+  "RANKED_FLEX_SR": "FLEX",
+  "RANKED_SOLO_5x5": "SOLO"
+} as const;

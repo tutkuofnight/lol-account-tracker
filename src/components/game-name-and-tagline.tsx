@@ -4,23 +4,29 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { CornerDownLeft } from "lucide-react"
 
-import { useAtom } from "jotai"
-import { accountNamesStore } from "@/store"
+import { useSetAtom } from "jotai"
+import { accountNamesStore, accountsListStore } from "@/store"
 
-import fetchAccounts from "@/lib/fetchAccounts"
+import { fetchAccount } from "@/lib/fetchAccounts"
 
 export default function gameNameAndTagline() {
   const [gameName, setGameName] = useState<string>("")
   const [tagLine, setTagLine] = useState<string>("")
-  const [accountNames, setAccountNames] = useAtom(accountNamesStore)
+  
+  const setAccountNamesToStorage = useSetAtom(accountNamesStore)
+  const setAccountList = useSetAtom(accountsListStore)
 
-  const handleSubmit = async (e:FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setAccountNames((accountNames) => [...accountNames, {
-      gameName,
-      tagLine
-    }])
-    await fetchAccounts(accountNames)
+    const account = await fetchAccount({ gameName, tagLine })
+    if (account) {
+      setAccountList((accountList) => [...accountList, account])
+
+      setAccountNamesToStorage((accountNames) => [...accountNames, {
+        gameName,
+        tagLine
+      }])
+    }
   }
 
   return (
