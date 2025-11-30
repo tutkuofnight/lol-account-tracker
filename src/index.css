@@ -118,3 +118,25 @@
     @apply bg-background text-foreground;
   }
 }
+
+.base-width {
+  @apply w-full max-w-[1240px] mx-auto;
+}
+
+.banner-image {
+  background: no-repeat url("/banner.jpeg") top center;
+  background-size: 100% auto;
+}
+
+@media (max-width: 1240px) {
+  .base-width {
+    @apply px-5;
+  }
+}
+
+@media (max-width: 818px) {
+  .banner-image {
+    background-size: auto;
+    background-clip: content-box;
+  }
+}
