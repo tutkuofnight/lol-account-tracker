@@ -2,34 +2,40 @@ import { useState, type FormEvent } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CornerDownLeft } from "lucide-react";
+import { CornerDownLeft, LoaderCircle } from "lucide-react";
 
-import { useSetAtom } from "jotai";
-import { accountNamesStore, accountsListStore } from "@/store";
-
-import { fetchAccount } from "@/lib/fetchAccounts";
+import { useAtom } from "jotai";
+import { accountNamesStore } from "@/store";
+import { useQueryClient, useMutation } from "@tanstack/react-query"
+import { fetchAllAccounts } from "@/lib/fetchAccounts";
+import type { AccountNames } from "@/types";
+// import { fetchAccount } from "@/lib/fetchAccounts";
 
 export default function GameNameAndTagline() {
   const [gameName, setGameName] = useState<string>("");
   const [tagLine, setTagLine] = useState<string>("");
-  const setAccountNamesToStorage = useSetAtom(accountNamesStore);
-  const setAccountList = useSetAtom(accountsListStore);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const account = await fetchAccount({ gameName, tagLine });
-    if (account) {
-      setAccountList((accountList) => [...accountList, account]);
+  const [accountNames,setAccountNames] = useAtom(accountNamesStore);
+  const queryClient = useQueryClient()
+  
+  const mutation = useMutation({
+    mutationFn: fetchAllAccounts,
+    onSuccess: () => {
       setGameName("");
       setTagLine("");
-      setAccountNamesToStorage((accountNames) => [
-        ...accountNames,
-        {
-          gameName,
-          tagLine,
-        },
-      ]);
+      queryClient.invalidateQueries({queryKey: ['accounts', accountNames]})
     }
+  })
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    setAccountNames((accountNames: AccountNames[]) => [
+      ...accountNames,
+      {
+        gameName,
+        tagLine,
+      },
+    ]);
+    mutation.mutate(accountNames)
   };
 
   const pasteAccountName = (e: React.ClipboardEvent) => {
@@ -60,10 +66,12 @@ export default function GameNameAndTagline() {
           onPaste={pasteAccountName}
           value={tagLine}
         />
-        <Button className="p-[27px]" type="submit">
-          <div className="bg-white/10 p-1 rounded">
-            <CornerDownLeft size={8} />
-          </div>
+        <Button className="p-[27px]" type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? <LoaderCircle className="animate-spin" /> : (
+            <div className="bg-white/10 p-1 rounded">
+              <CornerDownLeft size={8} />
+            </div>
+          )}
           Add
         </Button>
       </form>

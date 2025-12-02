@@ -117,10 +117,13 @@
   body {
     @apply bg-background text-foreground;
   }
+  button, a {
+    @apply cursor-pointer;
+  }
 }
 
 .base-width {
-  @apply w-full max-w-[1240px] mx-auto;
+  @apply w-full max-w-[1300px] mx-auto;
 }
 
 .banner-image {
@@ -128,7 +131,7 @@
   background-size: 100% auto;
 }
 
-@media (max-width: 1240px) {
+@media (max-width: 1300px) {
   .base-width {
     @apply px-5;
   }

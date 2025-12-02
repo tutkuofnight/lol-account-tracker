@@ -4,29 +4,38 @@ import { AccountCard, AccountCardSkeleton } from "@/components/account-card"
 import { fetchAllAccounts } from "@/lib/fetchAccounts"
 import { useQuery } from "@tanstack/react-query"
 
-import { Button } from "@/components/ui/button"
-import { RefreshCcw, Codepen } from "lucide-react"
+import { Codepen } from "lucide-react"
 
 export default function AccountsList() {
-  // const [accounts] = useAtom(accountsListStore)
   const [accountNames] = useAtom(accountNamesStore)
   
-  const { isPending, data } = useQuery({ 
-    queryKey: ['accounts', accountNames, {preview: true}],
+  const { isPending, data } = useQuery({  
+    queryKey: ['accounts', accountNames],
     queryFn: () => fetchAllAccounts(accountNames),
     enabled: accountNames.length > 0,
-    staleTime: 0
+    staleTime: 1000 * 60
   })
-
+  console.log("data", data)
+  
   const AccountListHeader = () => (
-    <div className="flex items-center justify-between py-8">
+    <div className="flex flex-col justify-between py-8 sm:flex-row sm:items-center">
       <h3 className="font-semibold text-xl">Accounts</h3>
-      <Button variant={"outline"}>
-        <RefreshCcw /> 
-        Refresh
-      </Button>
+      <small>You can see here your added accounts and current status</small>
     </div>
   )
+
+  if (!data || accountNames.length === 0) {
+    return (
+      <div className="base-width">
+        <AccountListHeader />
+        <div className="w-full h-full flex flex-col items-center justify-center gap-5 *:text-gray-500 mt-10">
+          <Codepen size={50} />
+          <p>No Added Accounts</p>
+        </div>
+      </div>
+    )
+  }
+
   
   if (isPending) {
     return (
@@ -38,18 +47,6 @@ export default function AccountsList() {
           ))}
         </div>
       </section>
-    )
-  }
-
-  if (!data) {
-    return (
-      <div className="base-width">
-        <AccountListHeader />
-        <div className="w-full h-full flex flex-col items-center justify-center gap-5 *:text-gray-500">
-          <Codepen size={50} />
-          <p>No Added Accounts</p>
-        </div>
-      </div>
     )
   }
   
